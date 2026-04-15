@@ -7,16 +7,16 @@ namespace Farmers_Market_API.Models
 {
     public class ProduceListing
     {
-        private int ListingId { get; set; }
-        private int FarmerId { get; set; }
-        private string ProduceName { get; set; } = string.Empty;
-        private string Category { get; set; } = string.Empty;
-        private double PricePerKg { get; set; } = 0.0;
-        private double QuantityKg { get; set; } = 0;
-        private bool IsAvailable { get; set; } = true;
-        private DateTime HarvestDate { get; set; } = DateTime.Now;
-        private DateTime DateListed { get; set; } = DateTime.Now;
-        private string? Description { get; set; }
+        public int ListingId { get; set; }
+        public int FarmerId { get; set; }
+        public string ProduceName { get; set; } = string.Empty;
+        public string Category { get; set; } = string.Empty;
+        public double PricePerKg { get; set; } = 0.0;
+        public double QuantityKg { get; set; } = 0;
+        public bool IsAvailable { get; set; } = true;
+        public DateTime HarvestDate { get; set; } = DateTime.Now;
+        public DateTime DateListed { get; set; } = DateTime.Now;
+        public string? Description { get; set; }
 
         public ProduceListing(){}
         
@@ -32,6 +32,17 @@ namespace Farmers_Market_API.Models
             HarvestDate = harvestDate;
             DateListed = dateListed;
             Description = description;
+        }
+    
+        public string GetFormattedSummary()
+        {
+            return $"""
+            Produce: {ProduceName} 
+            Price: ${PricePerKg:F2} 
+            Quantity: {QuantityKg} kg 
+            Category: {Category}
+            Description: {Description ?? "None Provided"}
+            """;
         }
     }
 }
