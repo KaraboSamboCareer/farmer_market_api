@@ -44,5 +44,10 @@ namespace Farmers_Market_API.Models
             Description: {Description ?? "None Provided"}
             """;
         }
+
+        public double CalculateRevenue()
+        {
+            return PricePerKg * QuantityKg;
+        }
     }
 }
