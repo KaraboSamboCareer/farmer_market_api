@@ -1,5 +1,6 @@
 ﻿using System;
 using Farmers_Market_API.Enums;
+using Farmers_Market_API.Exceptions;
 using Farmers_Market_API.Models;
 
 namespace Farmers_Market_API.Repositories
@@ -64,16 +65,22 @@ namespace Farmers_Market_API.Repositories
             new ProduceListing(50, 2, "Tofu (Fresh)", Category.Other, 4.5, 30, true, DateTime.Now.AddDays(-3), DateTime.Now.AddDays(-1), "Freshly made soybean tofu.")
         };
 
-        public void AddProduce(ProduceListing produce) 
+        public ProduceListing AddProduce(ProduceListing produce) 
         {
+            
+            if (string.IsNullOrEmpty(produce.ProduceName)) { throw new InvalidProduceFormatException("Produce name cannot be null or empty."); }
+            if (produce.PricePerKg < 0) { throw new InvalidProduceFormatException("Price per kg cannot be negative."); }
+            if (produce.QuantityKg < 0) { throw new InvalidProduceFormatException("Quantity per kg cannot be negative"); }
+
             int newId = ProduceListings.Max(p => p.ListingId) + 1;
             produce.ListingId = newId;
             ProduceListings.Add(produce);
+            return produce;
         }
 
         public List<ProduceListing> getAll() { return ProduceListings; }
 
-        public ProduceListing? GetById(int id)
+        public ProduceListing GetById(int id)
         {
 
             for (int i = 0; i < ProduceListings.Count; i++)
@@ -83,7 +90,7 @@ namespace Farmers_Market_API.Repositories
                     return ProduceListings[i];
                 }
             }
-            return null;
+            throw new ListingNotFoundException($"Produce listing with ID {id} not found.");
         }
 
         public List<ProduceListing> GetByCategory(Category category)

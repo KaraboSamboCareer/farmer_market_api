@@ -6,6 +6,8 @@ using Farmers_Market_API.Models;
 using Microsoft.AspNetCore.Mvc;
 using Farmers_Market_API.Enums;
 using Farmers_Market_API.Repositories;
+using Farmers_Market_API.DTOs;
+using Farmers_Market_API.Exceptions;
 
 namespace Farmers_Market_API.Controllers
 {
@@ -24,14 +26,21 @@ namespace Farmers_Market_API.Controllers
 
         [HttpGet("{id}")]
         public IActionResult GetProduceListingById(int id)
-        {
-            var produce = _produceRepository.GetById(id);
-            if (produce == null)
-            {
-                return NotFound();
-            } else
-            {
+        { 
+            try 
+            { 
+                var produce = _produceRepository.GetById(id);
                 return Ok(produce);
+            } 
+            
+            catch (ListingNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            } 
+            
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
             }
         }
 
@@ -49,10 +58,30 @@ namespace Farmers_Market_API.Controllers
         }
 
         [HttpPost]
-        public IActionResult CreateProduceListing([FromBody] ProduceListing newListing)
+        public IActionResult CreateProduceListing([FromBody] CreateProduceDTO newListing)
         {
-            _produceRepository.AddProduce(newListing);
-            return Created($"localhost:5142/api/Produce/{newListing.ListingId}", newListing);
+            try
+            {
+                var createdProduce = _produceRepository.AddProduce(
+                    new ProduceListing
+                    {
+                        FarmerId = newListing.FarmerId,
+                        ProduceName = newListing.ProduceName,
+                        Category = newListing.Category,
+                        PricePerKg = newListing.PricePerKg,
+                        QuantityKg = newListing.QuantityKg,
+                        IsAvailable = newListing.IsAvailable,
+                        HarvestDate = newListing.HarvestDate,
+                        DateListed = newListing.DateListed,
+                        Description = newListing.Description
+                    });
+                return Created("api/produce/" + createdProduce.ListingId, createdProduce);
+            }
+            catch (InvalidProduceFormatException ex) 
+            {
+                return BadRequest(ex.Message);
+            }
+            
         }
 
         [HttpGet("available")]
