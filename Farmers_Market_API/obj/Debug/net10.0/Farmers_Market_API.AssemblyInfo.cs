@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Farmers_Market_API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4ff5096bd4d54e66fd59c089ffa784b457167c58")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+55b03074d54be3c9dffc48293c44297f750f5d14")]
 [assembly: System.Reflection.AssemblyProductAttribute("Farmers_Market_API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Farmers_Market_API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

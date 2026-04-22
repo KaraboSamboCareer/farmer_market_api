@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Farmers_Market_API.Exceptions;
 using Farmers_Market_API.Models;
+using Farmers_Market_API.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Farmers_Market_API.Controllers
@@ -11,52 +13,47 @@ namespace Farmers_Market_API.Controllers
     [Route("api/[controller]")]
     public class FarmerController : ControllerBase
     {
-        private readonly List<Farmer> farmers = new List<Farmer> { 
-            new (1,"Kobus", "kobus@example.com", "123-456-7890", "Location A", "Province A", 4.5, true), 
-            new (2,"Tyrique", "tyrique@example.com", "098-765-4321", "Location B", "Province B", 4.0, true), 
-            new (3,"Zandre", "zandre@example.com", "555-555-5555", "Location C", "Province C", 4.8, true) 
-            };
+        private FarmerRepository _repository = new FarmerRepository();
 
         [HttpGet]
         public IActionResult GetListOfFarmers()
         {
-            return Ok(farmers);
+            return Ok(_repository.GetAll());
         }
 
         [HttpPost]
         public IActionResult CreateFarmer([FromBody] Farmer farmer)
         {
-            farmers.Add(farmer);
-            return Created("Created Successfully",farmer);
+
+                var createdFarmer = _repository.Create(farmer);
+                return Created($"api/farmer/{createdFarmer.FarmerId}", createdFarmer);
         }
 
         [HttpDelete]
         public IActionResult Delete([FromQuery] int farmerId)
         {
-            var farmer = farmers.FirstOrDefault(f => f.GetFarmerId() == farmerId);
-            if (farmer != null)
+            try 
             {
-                farmers.Remove(farmer);
-                return Ok(farmer);
+                var deletedFarmer = _repository.Delete(farmerId);
+                return NoContent();
             }
-            else
+            catch(FarmerNotFoundException ex)
             {
-                return NotFound();
+                return NotFound(ex.Message);
             }
         }
 
         [HttpPut]
         public IActionResult UpdateFarmers([FromBody] Farmer updatedFarmer)
         {
-           var farmer = farmers.FirstOrDefault(f => f.GetFarmerId() == updatedFarmer.GetFarmerId());
-            if (farmer != null)
+            try 
             {
-                farmer = updatedFarmer;
-                return Ok(farmer);
+                var updatedFarmerResult = _repository.UpdateFarmer(updatedFarmer);
+                return Ok(updatedFarmerResult);
             }
-            else
-            {
-                return NotFound();
+            catch (FarmerNotFoundException ex) 
+            { 
+                return NotFound(ex.Message);
             }
         }
      }
