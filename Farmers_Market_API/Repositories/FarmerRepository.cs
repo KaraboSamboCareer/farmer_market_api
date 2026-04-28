@@ -1,9 +1,10 @@
 ﻿using Farmers_Market_API.Exceptions;
+using Farmers_Market_API.Interfaces;
 using Farmers_Market_API.Models;
 
 namespace Farmers_Market_API.Repositories
 {
-    public class FarmerRepository
+    public class FarmerRepository: IRepository<Farmer>
     {
         private List<Farmer> farmers = new List<Farmer> {
             new (1, "Kobus", "kobus@example.com", "123-456-7890", "Location A", "Province A", 4.5, true),
@@ -33,25 +34,25 @@ namespace Farmers_Market_API.Repositories
             return farmers;
         }
 
-        public Farmer Create(Farmer farmer)
+        public Farmer Add(Farmer farmer)
         {
             farmers.Add(farmer);
             return farmer;
         }
 
-        public Farmer GetFarmerById(int Id)
+        public Farmer GetById(int Id)
         {
             var farmer = farmers.Find(farmer => farmer.FarmerId == Id);
             return farmer ?? throw new FarmerNotFoundException(Id);
         }
 
-        public Farmer GetFarmerByEmail(string email)
+        public Farmer GetByEmail(string email)
         {
             var farmer = farmers.Find(farmer => farmer.Email == email);
             return farmer ?? throw new FarmerNotFoundException(email);
         }
 
-        public Farmer UpdateFarmer(Farmer updatedFarmer)
+        public Farmer Update(Farmer updatedFarmer)
         {
             var farmer = farmers.Find(f => f.FarmerId == updatedFarmer.FarmerId);
             if (farmer != null)
@@ -77,6 +78,21 @@ namespace Farmers_Market_API.Repositories
             else
             {
                 throw new FarmerNotFoundException(Id);
+            }
+
+        }
+
+        public Farmer Delete(Farmer farmerToDelete)
+        {
+            var farmer = farmers.Find(farmer => farmer.FarmerId == farmerToDelete.FarmerId);
+            if (farmer != null)
+            {
+                farmers.Remove(farmer);
+                return farmer;
+            }
+            else
+            {
+                throw new FarmerNotFoundException("");
             }
 
         }

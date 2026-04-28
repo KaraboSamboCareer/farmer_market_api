@@ -1,11 +1,12 @@
 ﻿using System;
 using Farmers_Market_API.Enums;
 using Farmers_Market_API.Exceptions;
+using Farmers_Market_API.Interfaces;
 using Farmers_Market_API.Models;
 
 namespace Farmers_Market_API.Repositories
 {
-    public class ProduceRepository
+    public class ProduceRepository: IRepository<ProduceListing>
     {
         private List<ProduceListing> ProduceListings = new()
         {
@@ -65,20 +66,19 @@ namespace Farmers_Market_API.Repositories
             new ProduceListing(50, 2, "Tofu (Fresh)", Category.Other, 4.5, 30, true, DateTime.Now.AddDays(-3), DateTime.Now.AddDays(-1), "Freshly made soybean tofu.")
         };
 
-        public ProduceListing AddProduce(ProduceListing produce) 
+        public ProduceListing Add(ProduceListing produce) 
         {
             
             if (string.IsNullOrEmpty(produce.ProduceName)) { throw new InvalidProduceFormatException("Produce name cannot be null or empty."); }
             if (produce.PricePerKg < 0) { throw new InvalidProduceFormatException("Price per kg cannot be negative."); }
-            if (produce.QuantityKg < 0) { throw new InvalidProduceFormatException("Quantity per kg cannot be negative"); }
-
+            if (produce.QuantityKg < 0) { throw new InvalidProduceFormatException("Quantity per kg cannot be negative."); }
             int newId = ProduceListings.Max(p => p.ListingId) + 1;
             produce.ListingId = newId;
             ProduceListings.Add(produce);
             return produce;
         }
 
-        public List<ProduceListing> getAll() { return ProduceListings; }
+        public List<ProduceListing> GetAll() { return ProduceListings; }
 
         public ProduceListing GetById(int id)
         {
@@ -115,6 +115,23 @@ namespace Farmers_Market_API.Repositories
             }
 
             return results;
+        }
+
+        public ProduceListing Update(ProduceListing updatedProduce)
+        {
+            var foundProduce = ProduceListings.Find(p => p.ListingId == updatedProduce.ListingId);
+            if (foundProduce == null) { throw new ListingNotFoundException($"Produce listing with ID {updatedProduce.ListingId} not found."); }
+            int index = ProduceListings.IndexOf(foundProduce);
+            ProduceListings[index] = updatedProduce;
+            return updatedProduce;
+        }
+
+        public ProduceListing Delete(ProduceListing produceToDelete)
+        {
+            var foundProduce = ProduceListings.Find(p => p.ListingId == produceToDelete.ListingId);
+            if (foundProduce == null) { throw new ListingNotFoundException($"Produce listing with ID {produceToDelete.ListingId} not found."); }
+            ProduceListings.Remove(foundProduce);
+            return foundProduce;
         }
     }
 }
