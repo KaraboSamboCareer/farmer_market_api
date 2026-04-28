@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Farmers_Market_API.Exceptions;
 using Farmers_Market_API.Models;
+using Farmers_Market_API.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Farmers_Market_API.Controllers
@@ -11,47 +13,47 @@ namespace Farmers_Market_API.Controllers
     [Route("api/[controller]")]
     public class FarmerController : ControllerBase
     {
-        private readonly List<string> farmers = new List<string> { "Kobus", "Tyrique", "Zandre" };
+        private FarmerRepository _repository = new FarmerRepository();
 
         [HttpGet]
-        public List<string> GetListOfFarmers()
+        public IActionResult GetListOfFarmers()
         {
-            return farmers;
+            return Ok(_repository.GetAll());
         }
 
         [HttpPost]
-        public List<string> CreateFarmer([FromBody] string name)
+        public IActionResult CreateFarmer([FromBody] Farmer farmer)
         {
-            farmers.Add(name);
-            return farmers;
+
+                var createdFarmer = _repository.Create(farmer);
+                return Created($"api/farmer/{createdFarmer.FarmerId}", createdFarmer);
         }
 
         [HttpDelete]
-        public List<string> Delete([FromQuery] string name)
+        public IActionResult Delete([FromQuery] int farmerId)
         {
-            if (farmers.Contains(name))
+            try 
             {
-                farmers.Remove(name);
-                return farmers;
+                var deletedFarmer = _repository.Delete(farmerId);
+                return NoContent();
             }
-            else
+            catch(FarmerNotFoundException ex)
             {
-                return farmers;
+                return NotFound(ex.Message);
             }
         }
 
         [HttpPut]
-        public List<string> UpdateFarmers([FromBody] UpdateRequest request)
+        public IActionResult UpdateFarmers([FromBody] Farmer updatedFarmer)
         {
-            if (farmers.Contains(request.OldName))
+            try 
             {
-                var index = farmers.IndexOf(request.OldName);
-                farmers[index] = request.NewName;
-                return farmers;
+                var updatedFarmerResult = _repository.UpdateFarmer(updatedFarmer);
+                return Ok(updatedFarmerResult);
             }
-            else
-            {
-                return farmers;
+            catch (FarmerNotFoundException ex) 
+            { 
+                return NotFound(ex.Message);
             }
         }
      }

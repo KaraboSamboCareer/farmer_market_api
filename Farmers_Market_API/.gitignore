@@ -13,7 +13,7 @@
 # Visual Studio Code
 .vscode/
 *.code-workspace
-Farmers_Market_API/bin
+bin
 
 # Visual Studio
 .vs/
